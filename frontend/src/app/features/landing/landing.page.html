@@ -1,0 +1,144 @@
+<div class="relative min-h-dvh overflow-x-hidden bg-canvas">
+  <div class="pointer-events-none absolute inset-0 glow-violet"></div>
+  <div class="pointer-events-none absolute inset-0 glow-electric"></div>
+
+  <header class="relative z-10 border-b border-line/70">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+      <app-brand />
+      <nav class="hidden items-center gap-8 text-sm text-ink-muted md:flex">
+        <a href="#metodo" class="hover:text-ink">Método</a>
+        <a href="#idiomas" class="hover:text-ink">Idiomas</a>
+        <a href="#produto" class="hover:text-ink">Produto</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a routerLink="/login" class="btn-ghost hidden sm:inline-flex">Entrar</a>
+        <a routerLink="/register" class="btn-primary">Começar</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="relative mx-auto max-w-6xl px-4 pb-20 pt-16 sm:px-6 sm:pb-28 sm:pt-24">
+      <p class="hero-anim kicker">Aprendizagem com ciência cognitiva</p>
+      <h1
+        class="hero-anim mt-5 max-w-3xl font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-6xl"
+      >
+        Aprenda de verdade.
+        <span class="text-gradient-brand">E não esqueça.</span>
+      </h1>
+      <p class="hero-anim mt-6 max-w-xl text-base leading-relaxed text-ink-muted sm:text-lg">
+        Memora combina recuperação ativa, repetição espaçada e prática intercalada para transformar
+        o que você estuda em conhecimento que permanece — começando por idiomas.
+      </p>
+      <div class="hero-anim mt-8 flex flex-col gap-3 sm:flex-row">
+        <a routerLink="/register" class="btn-primary h-12 px-6">
+          Criar conta gratuita
+          <app-icon name="arrow-right" [size]="16" />
+        </a>
+        <a href="#metodo" class="btn-secondary h-12 px-6">Como funciona</a>
+      </div>
+
+      <div class="hero-anim mt-16 grid gap-3 sm:grid-cols-3" aria-label="Pilares do método">
+        @for (pillar of pillars; track pillar.title) {
+          <article class="card-sheen p-5">
+            <span
+              class="grid h-9 w-9 place-items-center rounded-lg bg-violet/15 text-violet-bright"
+            >
+              <app-icon [name]="pillar.icon" [size]="18" />
+            </span>
+            <h2 class="mt-4 text-base font-semibold">{{ pillar.title }}</h2>
+            <p class="mt-2 text-sm leading-relaxed text-ink-muted">{{ pillar.text }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section id="metodo" class="border-t border-line/70 bg-surface">
+      <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <div>
+          <p class="kicker">Não é só um app de flashcards</p>
+          <h2 class="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+            Um produto completo de aprendizagem.
+          </h2>
+          <p class="mt-4 max-w-xl text-ink-muted">
+            Vocabulário, gramática, leitura, listening e escrita compartilham o mesmo motor. A IA
+            ajuda a criar conteúdo quando você pede — e o estudo funciona integralmente sem ela.
+          </p>
+          <ul class="mt-8 space-y-4">
+            @for (item of promises; track item) {
+              <li class="flex items-start gap-3 text-sm text-ink">
+                <span
+                  class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-mint/15 text-mint"
+                >
+                  <app-icon name="check" [size]="12" />
+                </span>
+                {{ item }}
+              </li>
+            }
+          </ul>
+        </div>
+        <aside class="card-sheen p-6">
+          <p class="text-xs uppercase tracking-[0.16em] text-ink-subtle">Sessão de estudo</p>
+          <p class="mt-4 font-display text-2xl leading-snug">
+            Qual a diferença entre <em class="text-violet-bright">ser</em> e
+            <em class="text-electric-bright">estar</em>?
+          </p>
+          <p class="mt-3 text-sm text-ink-subtle">Tente responder antes de revelar.</p>
+          <div class="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            @for (grade of grades; track grade) {
+              <button type="button" class="btn-secondary h-11 text-xs" tabindex="-1">
+                {{ grade }}
+              </button>
+            }
+          </div>
+          <p class="mt-4 text-xs text-ink-faint">Prévia ilustrativa — o motor chega na etapa 2.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="idiomas" class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <p class="kicker">Primeiro módulo</p>
+      <h2 class="mt-4 font-display text-3xl font-semibold tracking-tight">
+        Idiomas, com profundidade.
+      </h2>
+      <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        @for (skill of skills; track skill.title) {
+          <article class="card p-5">
+            <app-icon [name]="skill.icon" [size]="18" class="text-electric-bright" />
+            <h3 class="mt-3 font-semibold">{{ skill.title }}</h3>
+            <p class="mt-1.5 text-sm text-ink-muted">{{ skill.text }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section id="produto" class="border-t border-line/70 bg-surface">
+      <div
+        class="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-20 sm:px-6 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <h2 class="font-display text-3xl font-semibold tracking-tight">
+            Pronto para a primeira sessão?
+          </h2>
+          <p class="mt-2 max-w-lg text-ink-muted">
+            Crie sua conta, escolha um idioma e acompanhe XP, sequência e progresso reais — sem
+            métricas inventadas.
+          </p>
+        </div>
+        <a routerLink="/register" class="btn-primary h-12 px-6">
+          Criar conta
+          <app-icon name="arrow-right" [size]="16" />
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-line/70">
+    <div
+      class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-ink-subtle sm:flex-row sm:items-center sm:justify-between sm:px-6"
+    >
+      <span>Memora · aprendizagem que permanece</span>
+      <span>Dark mode nativo · FSRS · Gemini opcional</span>
+    </div>
+  </footer>
+</div>

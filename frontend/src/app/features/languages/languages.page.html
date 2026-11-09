@@ -1,0 +1,129 @@
+<section class="mx-auto max-w-5xl animate-rise">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="kicker">Módulo de idiomas</p>
+      <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight">Meus idiomas</h1>
+      <p class="mt-1 text-sm text-ink-muted">
+        Um usuário pode estudar vários idiomas, cada um com o próprio recorte CEFR.
+      </p>
+    </div>
+    <button
+      type="button"
+      class="btn-primary"
+      (click)="openEnrol()"
+      [disabled]="availableLanguages().length === 0"
+    >
+      <app-icon name="plus" [size]="16" />
+      Adicionar idioma
+    </button>
+  </div>
+
+  @if (errorMessage(); as message) {
+    <p class="mt-6 rounded-field bg-rose/10 px-3 py-2 text-sm text-rose" role="alert">
+      {{ message }}
+    </p>
+  }
+
+  @if (loading()) {
+    <p class="mt-10 text-sm text-ink-muted">Carregando idiomas…</p>
+  } @else if (enrolments().length === 0) {
+    <div class="card mt-8 p-6">
+      <app-empty-state
+        icon="languages"
+        title="Comece por um idioma"
+        description="O catálogo já está no servidor. Ao se matricular, o dashboard passa a refletir essa escolha."
+      >
+        <button type="button" class="btn-primary mt-2" (click)="openEnrol()">
+          Escolher idioma
+        </button>
+      </app-empty-state>
+    </div>
+  } @else {
+    <ul class="mt-8 grid gap-3 sm:grid-cols-2">
+      @for (enrolment of enrolments(); track enrolment.id) {
+        <li>
+          <a
+            [routerLink]="['/app/languages', enrolment.id]"
+            class="card-sheen flex items-center gap-4 p-5 hover:bg-surface-hover"
+          >
+            <span class="text-4xl">{{ enrolment.language.flagEmoji }}</span>
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold">
+                {{ enrolment.language.name }}
+                <span class="ml-1 text-sm font-normal text-ink-subtle">
+                  {{ enrolment.language.nativeName }}
+                </span>
+              </p>
+              <p class="mt-1 text-sm text-ink-muted">
+                {{ enrolment.currentLevel }} → {{ enrolment.targetLevel }}
+                @if (enrolment.primaryFocus) {
+                  <span class="chip ml-2">foco atual</span>
+                }
+              </p>
+            </div>
+            <app-icon name="chevron-right" [size]="18" class="text-ink-faint" />
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+@if (enrolOpen()) {
+  <div class="fixed inset-0 z-50 flex items-end bg-canvas/70 p-4 sm:items-center sm:justify-center">
+    <form class="card w-full max-w-md p-6" [formGroup]="form" (ngSubmit)="enrol()" novalidate>
+      <div class="flex items-center justify-between">
+        <h2 class="font-display text-xl font-semibold">Novo idioma</h2>
+        <button
+          type="button"
+          class="btn-ghost h-9 w-9 p-0"
+          (click)="enrolOpen.set(false)"
+          aria-label="Fechar"
+        >
+          <app-icon name="x" [size]="16" />
+        </button>
+      </div>
+
+      <label class="label mt-6" for="languageCode">Idioma</label>
+      <select id="languageCode" class="field" formControlName="languageCode">
+        @for (language of availableLanguages(); track language.code) {
+          <option [value]="language.code">
+            {{ language.flagEmoji }} {{ language.name }} · {{ language.nativeName }}
+          </option>
+        }
+      </select>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div>
+          <label class="label" for="currentLevel">Nível atual</label>
+          <select id="currentLevel" class="field" formControlName="currentLevel">
+            @for (level of cefrLevels; track level) {
+              <option [value]="level">{{ level }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="label" for="targetLevel">Meta</label>
+          <select id="targetLevel" class="field" formControlName="targetLevel">
+            @for (level of cefrLevels; track level) {
+              <option [value]="level">{{ level }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <label class="mt-4 flex items-center gap-2 text-sm text-ink-muted">
+        <input type="checkbox" formControlName="primaryFocus" class="accent-violet" />
+        Definir como foco atual
+      </label>
+
+      <button class="btn-primary mt-6 w-full" type="submit" [disabled]="saving()">
+        @if (saving()) {
+          Salvando…
+        } @else {
+          Começar a estudar
+        }
+      </button>
+    </form>
+  </div>
+}

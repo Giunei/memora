@@ -1,0 +1,80 @@
+<section class="mx-auto max-w-3xl animate-rise">
+  <a
+    routerLink="/app/languages"
+    class="inline-flex items-center gap-2 text-sm text-ink-muted hover:text-ink"
+  >
+    <app-icon name="arrow-left" [size]="16" />
+    Meus idiomas
+  </a>
+
+  @if (loading()) {
+    <p class="mt-10 text-sm text-ink-muted">Carregando…</p>
+  } @else if (enrolment(); as enrolment) {
+    <header class="mt-6 flex items-center gap-4">
+      <span class="text-5xl">{{ enrolment.language.flagEmoji }}</span>
+      <div>
+        <h1 class="font-display text-3xl font-semibold tracking-tight">
+          {{ enrolment.language.name }}
+        </h1>
+        <p class="text-ink-muted">{{ enrolment.language.nativeName }}</p>
+      </div>
+    </header>
+
+    @if (errorMessage(); as message) {
+      <p class="mt-6 rounded-field bg-rose/10 px-3 py-2 text-sm text-rose" role="alert">
+        {{ message }}
+      </p>
+    }
+
+    <form class="card mt-8 p-6" [formGroup]="form" (ngSubmit)="save()">
+      <h2 class="font-display text-lg font-semibold">Níveis CEFR</h2>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div>
+          <label class="label" for="currentLevel">Atual</label>
+          <select id="currentLevel" class="field" formControlName="currentLevel">
+            @for (level of cefrLevels; track level) {
+              <option [value]="level">{{ level }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="label" for="targetLevel">Meta</label>
+          <select id="targetLevel" class="field" formControlName="targetLevel">
+            @for (level of cefrLevels; track level) {
+              <option [value]="level">{{ level }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <label class="mt-4 flex items-center gap-2 text-sm text-ink-muted">
+        <input type="checkbox" formControlName="primaryFocus" class="accent-violet" />
+        Idioma de foco
+      </label>
+      <p class="mt-3 text-xs text-ink-subtle">
+        Desde
+        {{ enrolment.startedAt | date: 'd MMM y' }}
+        @if (enrolment.lastStudiedAt) {
+          · último estudo {{ enrolment.lastStudiedAt | date: 'd MMM y' }}
+        } @else {
+          · ainda sem sessão de estudo
+        }
+      </p>
+      <button class="btn-primary mt-6" type="submit" [disabled]="saving()">
+        {{ saving() ? 'Salvando…' : 'Salvar alterações' }}
+      </button>
+    </form>
+
+    <article class="card mt-4 p-6">
+      <app-empty-state
+        icon="layers"
+        title="Módulos e assuntos"
+        description="A organização por módulos, tópicos e itens de aprendizagem entra com o motor na etapa 2. Nada aqui é simulado."
+      />
+    </article>
+
+    <button type="button" class="btn-danger mt-6" (click)="remove()" [disabled]="removing()">
+      <app-icon name="trash" [size]="16" />
+      Parar de estudar
+    </button>
+  }
+</section>

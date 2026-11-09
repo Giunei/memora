@@ -1,0 +1,286 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   Memora design tokens.
+
+   Tailwind v4 is configured in CSS: every custom property declared inside
+   `@theme` becomes a utility, so `--color-surface-raised` yields
+   `bg-surface-raised`, `text-surface-raised` and `border-surface-raised`.
+   Defining the palette here keeps the visual identity in one file instead of
+   scattered hex values across templates.
+
+   The scale is a very dark navy base with four stacked surface levels. Depth
+   comes from those levels plus hairline borders rather than from gradients,
+   which are reserved for a few deliberate accents.
+--------------------------------------------------------------------------- */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Backgrounds, darkest to lightest */
+  --color-canvas: #06080f;
+  --color-surface: #0b0f1b;
+  --color-surface-raised: #111728;
+  --color-surface-overlay: #161d33;
+  --color-surface-hover: #1b2340;
+
+  /* Hairlines */
+  --color-line: #1f2740;
+  --color-line-strong: #2b3553;
+
+  /* Text */
+  --color-ink: #eef1fa;
+  --color-ink-muted: #a3adc9;
+  --color-ink-subtle: #6a7593;
+  --color-ink-faint: #4a5470;
+
+  /* Accents. Violet is the primary brand colour; electric blue is the
+     secondary; the rest are reserved for status, never for decoration. */
+  --color-violet: #8b5cf6;
+  --color-violet-bright: #a78bfa;
+  --color-violet-deep: #6d35e8;
+  --color-electric: #3b82f6;
+  --color-electric-bright: #60a5fa;
+  --color-cyan: #22d3ee;
+  --color-mint: #34d399;
+  --color-amber: #fbbf24;
+  --color-rose: #fb7185;
+
+  --radius-card: 1rem;
+  --radius-field: 0.625rem;
+
+  --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -12px rgb(0 0 0 / 0.6);
+  --shadow-glow-violet: 0 0 0 1px rgb(139 92 246 / 0.3), 0 8px 32px -8px rgb(139 92 246 / 0.45);
+
+  --animate-rise: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade: fade 0.3s ease-out both;
+  --animate-pulse-ring: pulse-ring 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-ring {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(1.35);
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    color-scheme: dark;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    /* Prevents the horizontal scrollbar that wide charts would otherwise
+       introduce on narrow viewports. */
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  /* Visible, branded focus ring on keyboard navigation only. */
+  :focus-visible {
+    outline: 2px solid var(--color-violet-bright);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-violet) 35%, transparent);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-canvas);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border-radius: 9999px;
+    border: 2px solid var(--color-canvas);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-ink-faint);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-card bg-surface-raised shadow-lift ring-1 ring-line;
+  }
+
+  .card-sheen {
+    @apply rounded-card bg-surface-raised shadow-lift ring-1 ring-line overflow-hidden;
+    position: relative;
+  }
+
+  .card-sheen::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 255 255 / 0.09) 35%,
+      rgb(255 255 255 / 0.09) 65%,
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  .btn {
+    @apply inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-field px-4 text-sm
+      font-medium transition duration-150 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-field bg-violet px-4
+      text-sm font-medium text-white shadow-glow-violet transition duration-150 hover:bg-violet-deep
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-field bg-surface-overlay
+      px-4 text-sm font-medium text-ink ring-1 ring-line-strong transition duration-150 hover:bg-surface-hover
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-field px-4 text-sm
+      font-medium text-ink-muted transition duration-150 hover:bg-surface-hover hover:text-ink
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-danger {
+    @apply inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-field bg-rose/15 px-4
+      text-sm font-medium text-rose ring-1 ring-rose/30 transition duration-150 hover:bg-rose/25
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .field {
+    @apply w-full rounded-field bg-canvas px-3.5 py-2.5 text-sm text-ink outline-none ring-1 ring-line
+      placeholder:text-ink-faint focus:ring-2 focus:ring-violet/70;
+  }
+
+  .label {
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-[0.14em] text-ink-subtle;
+  }
+
+  .kicker {
+    @apply text-xs font-medium uppercase tracking-[0.18em] text-violet-bright;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-surface-overlay px-2.5 py-1 text-xs font-medium
+      text-ink-muted ring-1 ring-line;
+  }
+}
+
+@layer utilities {
+  /* Numbers in stat cards and tables must not jitter as they change. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  /* The one place gradients are used heavily: large display headlines. */
+  .text-gradient-brand {
+    background-image: linear-gradient(
+      100deg,
+      var(--color-ink) 10%,
+      var(--color-violet-bright) 55%,
+      var(--color-electric-bright) 95%
+    );
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Hairline top highlight that makes raised surfaces read as lit from above. */
+  .surface-sheen {
+    position: relative;
+  }
+
+  .surface-sheen::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 255 255 / 0.09) 35%,
+      rgb(255 255 255 / 0.09) 65%,
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  /* Ambient brand light used behind hero and empty states. */
+  .glow-violet {
+    background-image: radial-gradient(60% 60% at 50% 0%, rgb(139 92 246 / 0.18), transparent 70%);
+  }
+
+  .glow-electric {
+    background-image: radial-gradient(50% 50% at 80% 10%, rgb(59 130 246 / 0.14), transparent 70%);
+  }
+
+  /* Comfortable touch targets on mobile without bloating desktop controls. */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

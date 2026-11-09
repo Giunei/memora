@@ -1,0 +1,81 @@
+# ---------------------------------------------------------------------------
+# Memora - local development stack
+#
+#   docker compose up -d                       -> PostgreSQL only (default dev
+#                                                 workflow: run backend and
+#                                                 frontend from your IDE/CLI)
+#   docker compose --profile app up -d --build -> full stack in containers
+# ---------------------------------------------------------------------------
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: memora-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-memora}
+      POSTGRES_USER: ${POSTGRES_USER:-memora}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-memora_local_password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # PostgreSQL 18 stores data under /var/lib/postgresql/<major>, not
+      # /var/lib/postgresql/data. Mounting the parent directory is required.
+      - memora-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-memora} -d ${POSTGRES_DB:-memora}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - memora
+
+  backend:
+    profiles: ["app"]
+    build:
+      context: ./backend
+    container_name: memora-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-memora}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-memora}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-memora_local_password}
+      MEMORA_SECURITY_JWT_SECRET: ${MEMORA_SECURITY_JWT_SECRET:?set MEMORA_SECURITY_JWT_SECRET in .env}
+      MEMORA_SECURITY_COOKIE_SECURE: ${MEMORA_SECURITY_COOKIE_SECURE:-false}
+      MEMORA_AI_ENABLED: ${MEMORA_AI_ENABLED:-false}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    networks:
+      - memora
+
+  frontend:
+    profiles: ["app"]
+    build:
+      context: ./frontend
+    container_name: memora-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "4200:8080"
+    networks:
+      - memora
+
+volumes:
+  memora-postgres-data:
+
+networks:
+  memora:
+    driver: bridge

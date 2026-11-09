@@ -1,0 +1,76 @@
+<section class="mx-auto max-w-2xl animate-rise">
+  <p class="kicker">Conta</p>
+  <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight">Perfil e configurações</h1>
+  <p class="mt-1 text-sm text-ink-muted">{{ user()?.email }}</p>
+
+  <form class="card mt-8 p-6" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+    <h2 class="font-display text-lg font-semibold">Identidade</h2>
+
+    <label class="label mt-5" for="displayName">Nome de exibição</label>
+    <input
+      id="displayName"
+      class="field"
+      type="text"
+      formControlName="displayName"
+      autocomplete="name"
+    />
+
+    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+      <div>
+        <label class="label" for="locale">Idioma da interface</label>
+        <input id="locale" class="field" type="text" formControlName="locale" placeholder="pt-BR" />
+      </div>
+      <div>
+        <label class="label" for="timeZone">Fuso horário</label>
+        <input
+          id="timeZone"
+          class="field"
+          type="text"
+          formControlName="timeZone"
+          placeholder="America/Sao_Paulo"
+        />
+      </div>
+    </div>
+
+    @if (profileError(); as message) {
+      <p class="mt-4 text-sm text-rose" role="alert">{{ message }}</p>
+    }
+    @if (profileMessage(); as message) {
+      <p class="mt-4 text-sm text-mint">{{ message }}</p>
+    }
+
+    <button class="btn-primary mt-6" type="submit" [disabled]="savingProfile()">
+      {{ savingProfile() ? 'Salvando…' : 'Salvar perfil' }}
+    </button>
+  </form>
+
+  <form class="card mt-4 p-6" [formGroup]="goalForm" (ngSubmit)="saveGoal()">
+    <h2 class="font-display text-lg font-semibold">Meta diária</h2>
+    <p class="mt-1 text-sm text-ink-muted">
+      Único valor de progresso que o cliente pode alterar. XP, nível e sequência ficam no backend.
+    </p>
+    <label class="label mt-5" for="dailyGoalMinutes">Minutos por dia (5 a 480)</label>
+    <input
+      id="dailyGoalMinutes"
+      class="field"
+      type="number"
+      min="5"
+      max="480"
+      formControlName="dailyGoalMinutes"
+    />
+    @if (goalError(); as message) {
+      <p class="mt-4 text-sm text-rose" role="alert">{{ message }}</p>
+    }
+    @if (goalMessage(); as message) {
+      <p class="mt-4 text-sm text-mint">{{ message }}</p>
+    }
+    <button class="btn-primary mt-6" type="submit" [disabled]="savingGoal()">
+      {{ savingGoal() ? 'Salvando…' : 'Atualizar meta' }}
+    </button>
+  </form>
+
+  <button type="button" class="btn-secondary mt-6" (click)="logout()">
+    <app-icon name="logout" [size]="16" />
+    Sair da conta
+  </button>
+</section>

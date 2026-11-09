@@ -1,0 +1,11 @@
+# Profile used by the container image. Every secret must come from the
+# environment; there are deliberately no fallbacks here.
+spring:
+  jpa:
+    properties:
+      hibernate:
+        format_sql: false
+
+logging:
+  level:
+    com.memora: INFO

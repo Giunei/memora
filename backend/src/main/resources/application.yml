@@ -1,0 +1,96 @@
+spring:
+  application:
+    name: memora-backend
+
+  profiles:
+    default: dev
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/memora}
+    username: ${SPRING_DATASOURCE_USERNAME:memora}
+    password: ${SPRING_DATASOURCE_PASSWORD:memora_local_password}
+    hikari:
+      pool-name: memora-pool
+      maximum-pool-size: 10
+
+  jpa:
+    # Flyway owns the schema. `validate` turns any drift between the entities and
+    # the migrated database into a startup failure instead of a runtime surprise.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc.time_zone: UTC
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+
+  jackson:
+    default-property-inclusion: non_null
+
+  # Java 25 virtual threads for request handling: the workload is I/O bound
+  # (database and, later, outbound AI calls), which is exactly what they target.
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: 8080
+  error:
+    whitelabel:
+      enabled: false
+  # Respect X-Forwarded-* so cookie `Secure` and generated URLs stay correct
+  # when the app runs behind the reverse proxy that serves the SPA.
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+
+memora:
+  security:
+    jwt:
+      # No default: an unset secret must stop the application, not silently
+      # fall back to something guessable. The `dev` profile supplies one.
+      secret: ${MEMORA_SECURITY_JWT_SECRET}
+      issuer: memora
+      access-token-ttl: ${MEMORA_SECURITY_JWT_ACCESS_TOKEN_TTL:PT15M}
+    refresh-token-ttl: ${MEMORA_SECURITY_REFRESH_TOKEN_TTL:P30D}
+    cookie-secure: ${MEMORA_SECURITY_COOKIE_SECURE:false}
+    # Empty means "same origin only" and disables CORS entirely. Only needed
+    # when the SPA is served from a different origin than the API.
+    allowed-origins: ${MEMORA_SECURITY_ALLOWED_ORIGINS:}
+
+  ai:
+    # The platform is fully usable with AI off. See ADR 0003.
+    enabled: ${MEMORA_AI_ENABLED:false}
+    provider: gemini
+    request-timeout: ${MEMORA_AI_REQUEST_TIMEOUT:PT30S}
+    daily-request-limit-per-user: ${MEMORA_AI_DAILY_REQUEST_LIMIT_PER_USER:20}
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: ${MEMORA_AI_GEMINI_MODEL:gemini-2.5-flash}
+      base-url: https://generativelanguage.googleapis.com/v1beta
+
+logging:
+  level:
+    com.memora: INFO

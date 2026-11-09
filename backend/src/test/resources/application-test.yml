@@ -1,0 +1,22 @@
+# Test profile. The datasource is supplied by Testcontainers through
+# @ServiceConnection, so only the secrets the application refuses to start
+# without are declared here.
+memora:
+  security:
+    jwt:
+      secret: integration-test-signing-secret-at-least-32-chars
+      issuer: memora
+      access-token-ttl: PT15M
+    refresh-token-ttl: P30D
+    cookie-secure: false
+    allowed-origins:
+
+  ai:
+    enabled: false
+
+logging:
+  level:
+    com.memora: INFO
+    org.hibernate.SQL: WARN
+    org.testcontainers: WARN
+    com.github.dockerjava: WARN

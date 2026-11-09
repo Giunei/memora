@@ -1,0 +1,161 @@
+<section class="mx-auto max-w-6xl animate-rise">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="kicker">{{ greeting() }}</p>
+      <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight">
+        {{ user()?.displayName }}
+      </h1>
+      <p class="mt-1 text-sm text-ink-muted">
+        Números abaixo vêm da API. O que ainda não existe aparece como vazio — nunca como dado
+        falso.
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      @if (aiStatus(); as ai) {
+        <span class="chip">
+          <app-icon name="sparkles" [size]="14" />
+          IA {{ ai.available ? 'disponível' : 'desligada' }}
+        </span>
+      }
+      <a routerLink="/app/study" class="btn-primary">
+        Estudar
+        <app-icon name="arrow-right" [size]="16" />
+      </a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="mt-10 text-sm text-ink-muted">Carregando o seu progresso…</p>
+  } @else if (errorMessage(); as message) {
+    <div class="card mt-8 p-5">
+      <p class="text-sm text-rose">{{ message }}</p>
+      <button type="button" class="btn-secondary mt-4" (click)="refresh()">Tentar de novo</button>
+    </div>
+  } @else {
+    <div class="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      @for (stat of stats(); track stat.label) {
+        <article class="card-sheen p-5">
+          <div class="flex items-center justify-between text-ink-subtle">
+            <span class="text-xs uppercase tracking-[0.14em]">{{ stat.label }}</span>
+            <app-icon [name]="stat.icon" [size]="16" />
+          </div>
+          <p class="mt-3 font-display text-3xl tabular font-semibold">{{ stat.value }}</p>
+          <p class="mt-1 text-xs text-ink-subtle">{{ stat.hint }}</p>
+        </article>
+      }
+    </div>
+
+    @if (progress(); as progress) {
+      <article class="card mt-4 p-5">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <p class="text-sm font-medium">Progresso no nível {{ progress.level }}</p>
+            <p class="text-xs text-ink-subtle">
+              {{ progress.xpIntoLevel }} / {{ progress.xpForNextLevel }} XP para o próximo nível
+            </p>
+          </div>
+          <span class="tabular text-sm text-violet-bright">{{ xpPercent() }}%</span>
+        </div>
+        <div class="mt-3 h-2 overflow-hidden rounded-full bg-surface-overlay">
+          <div class="h-full rounded-full bg-violet" [style.width.%]="xpPercent()"></div>
+        </div>
+      </article>
+    }
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+      <article class="card p-5">
+        <div class="flex items-center justify-between">
+          <h2 class="font-display text-lg font-semibold">Idiomas em estudo</h2>
+          <a routerLink="/app/languages" class="text-sm text-violet-bright hover:text-violet">
+            Gerenciar
+          </a>
+        </div>
+        @if (languages().length === 0) {
+          <div class="mt-6">
+            <app-empty-state
+              icon="languages"
+              title="Nenhum idioma ainda"
+              description="Escolha o primeiro idioma para começar. O dashboard passa a mostrar o recorte real da sua conta."
+            >
+              <a routerLink="/app/languages" class="btn-secondary mt-2">Adicionar idioma</a>
+            </app-empty-state>
+          </div>
+        } @else {
+          <ul class="mt-4 space-y-3">
+            @for (enrolment of languages(); track enrolment.id) {
+              <li>
+                <a
+                  [routerLink]="['/app/languages', enrolment.id]"
+                  class="flex items-center gap-3 rounded-field px-2 py-2 hover:bg-surface-hover"
+                >
+                  <span class="text-2xl">{{ enrolment.language.flagEmoji }}</span>
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate font-medium">
+                      {{ enrolment.language.name }}
+                      @if (enrolment.primaryFocus) {
+                        <span class="chip ml-2">foco</span>
+                      }
+                    </p>
+                    <p class="text-xs text-ink-subtle">
+                      {{ enrolment.currentLevel }} → {{ enrolment.targetLevel }}
+                    </p>
+                  </div>
+                  <app-icon name="chevron-right" [size]="16" class="text-ink-faint" />
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </article>
+
+      <article class="card p-5">
+        <h2 class="font-display text-lg font-semibold">Distribuição por idioma</h2>
+        @if (languageChart(); as options) {
+          <p class="mt-1 text-xs text-ink-subtle">
+            Cada fatia é um idioma em que você está matriculado.
+          </p>
+          <div class="mt-2 h-64" echarts [options]="options" [autoResize]="true"></div>
+        } @else {
+          <div class="mt-6">
+            <app-empty-state
+              icon="bar-chart"
+              title="Sem gráfico ainda"
+              description="O gráfico só aparece quando há idiomas reais na sua conta."
+            />
+          </div>
+        }
+      </article>
+    </div>
+
+    <div class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <article class="card p-5">
+        <app-empty-state
+          icon="repeat"
+          title="Revisões pendentes"
+          description="O motor FSRS ainda não está ativo. Esta área vai mostrar cartões realmente devidos."
+        />
+      </article>
+      <article class="card p-5">
+        <app-empty-state
+          icon="trending"
+          title="Taxa de acertos"
+          description="Calculada a partir das respostas das sessões, quando elas existirem."
+        />
+      </article>
+      <article class="card p-5">
+        <app-empty-state
+          icon="brain"
+          title="Retenção estimada"
+          description="Vem da estabilidade FSRS de cada cartão, não de uma média inventada."
+        />
+      </article>
+      <article class="card p-5">
+        <app-empty-state
+          icon="calendar"
+          title="Evolução semanal"
+          description="Aparece depois da primeira sessão concluída. Hoje não há histórico para plotar."
+        />
+      </article>
+    </div>
+  }
+</section>

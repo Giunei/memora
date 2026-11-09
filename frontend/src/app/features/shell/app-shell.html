@@ -1,0 +1,93 @@
+<div class="min-h-dvh bg-canvas lg:flex">
+  <aside
+    class="fixed inset-y-0 left-0 z-40 w-64 -translate-x-full border-r border-line bg-surface transition-transform duration-200 lg:relative lg:min-h-dvh lg:translate-x-0"
+    [class.translate-x-0]="drawerOpen()"
+  >
+    <div class="flex h-16 items-center justify-between px-5">
+      <app-brand to="/app/dashboard" />
+      <button
+        type="button"
+        class="btn-ghost lg:hidden"
+        (click)="closeDrawer()"
+        aria-label="Fechar menu"
+      >
+        <app-icon name="x" [size]="18" />
+      </button>
+    </div>
+
+    <nav class="flex flex-col gap-1 px-3 pt-2">
+      @for (item of nav; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="bg-surface-hover text-ink ring-1 ring-line"
+          class="flex items-center gap-3 rounded-field px-3 py-2.5 text-sm text-ink-muted hover:bg-surface-hover hover:text-ink"
+          (click)="closeDrawer()"
+        >
+          <app-icon [name]="item.icon" [size]="18" />
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+
+    <div class="absolute inset-x-0 bottom-0 border-t border-line p-4">
+      <div class="flex items-center gap-3">
+        <span
+          class="grid h-9 w-9 place-items-center rounded-full bg-violet/20 text-xs font-semibold text-violet-bright"
+        >
+          {{ initials() }}
+        </span>
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-sm font-medium">{{ user()?.displayName }}</p>
+          <p class="truncate text-xs text-ink-subtle">{{ user()?.email }}</p>
+        </div>
+        <button type="button" class="btn-ghost h-9 w-9 p-0" (click)="logout()" aria-label="Sair">
+          <app-icon name="logout" [size]="16" />
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  @if (drawerOpen()) {
+    <button
+      type="button"
+      class="fixed inset-0 z-30 bg-canvas/70 lg:hidden"
+      (click)="closeDrawer()"
+      aria-label="Fechar menu"
+    ></button>
+  }
+
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header
+      class="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-line bg-canvas/85 px-4 backdrop-blur lg:hidden"
+    >
+      <button
+        type="button"
+        class="btn-ghost h-10 w-10 p-0"
+        (click)="drawerOpen.set(true)"
+        aria-label="Abrir menu"
+      >
+        <app-icon name="menu" [size]="18" />
+      </button>
+      <app-brand to="/app/dashboard" />
+    </header>
+
+    <main class="flex-1 px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-10">
+      <router-outlet />
+    </main>
+  </div>
+
+  <nav
+    class="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+  >
+    @for (item of mobileNav; track item.path) {
+      <a
+        [routerLink]="item.path"
+        routerLinkActive="text-violet-bright"
+        class="tap-target flex flex-col items-center justify-center gap-1 py-2 text-[11px] text-ink-subtle"
+      >
+        <app-icon [name]="item.icon" [size]="18" />
+        {{ item.label }}
+      </a>
+    }
+  </nav>
+</div>
